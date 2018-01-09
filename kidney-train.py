@@ -294,7 +294,7 @@ def read_flags():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--data-root",
-                        default="",
+                        default="../data/data_256_subsample_4x/",
                         type=str,
                         help="prefix for filenames in csv files")
 
