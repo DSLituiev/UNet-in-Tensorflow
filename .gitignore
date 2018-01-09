@@ -127,3 +127,15 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+.mypy_cache
+/.projectile
+data
+data_resuize
+data_resize
+/labels_resized.csv
+object-detection-crowdai/
+/udacity-annoations-crowdai
+logdir
+/train.csv
+/test.csv
+models
