@@ -42,7 +42,7 @@ Loss function: maximize IOU
     (union of prediction & ground truth)
 ```
 
-## Examples on Test Data: trained for 3 epochs
+### Examples on Test Data: trained for 3 epochs
 <img src="assets/result1.png" />
 <img src="assets/result2.png" />
 <img src="assets/result3.png" />
@@ -51,23 +51,62 @@ Loss function: maximize IOU
 <img src="assets/result6.png" />
 <img src="assets/result7.png" />
 
-## Files
+
+## Get Started
+
+### Download dataset
+
+- the annotated driving dataset is provided by [Udacity](https://github.com/udacity/self-driving-car/tree/master/annotations)
+- In total, 9,423 frames with 65,000 labels at 1920x1200 resolution.
+
+```bash
+make download
 ```
-.
-├── assets/ # image assets
-├── data_utils.py # for data preprocessing
-├── README.md
-├── test.ipynb
-├── train.py
+
+### Resize image and generate mask images
+
+- [utils/data.py](./utils/data.py) is used to resize images and generate masks
+
+```bash
+make generate
 ```
 
+### Train Test Split
 
-## Datasets
-- [Annotated Driving Dataset by Udacity & CrowdAI](https://github.com/udacity/self-driving-car/tree/master/annotations)
-- The dataset was processed using `data_utils.py` in this repo to be used for U-Net
+Make sure masks and bounding boxes
 
-## Notes
-In the original paper, the pixel-wise softmax was used.
-But, I used the IOU because the datasets I used are
-not labeled for segmentations
+```bash
+jupyter notebook "Visualization & Train Test Split.ipynb"
+```
 
+### Train
+
+```bash
+# Train for 1 epoch
+python train.py
+```
+
+or
+
+```bash
+$ python train.py --help
+usage: train.py [-h] [--epochs EPOCHS] [--batch-size BATCH_SIZE]
+                [--logdir LOGDIR] [--reg REG] [--ckdir CKDIR]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --epochs EPOCHS       Number of epochs (default: 1)
+  --batch-size BATCH_SIZE
+                        Batch size (default: 4)
+  --logdir LOGDIR       Tensorboard log directory (default: logdir)
+  --reg REG             L2 Regularizer Term (default: 0.1)
+  --ckdir CKDIR         Checkpoint directory (default: models)
+```
+
+### Test
+
+- Open the Jupyter notebook file to run against test data
+
+```bash
+jupyter notebook "./Test Run After Training.ipynb"
+```
