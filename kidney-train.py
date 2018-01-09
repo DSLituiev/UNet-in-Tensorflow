@@ -62,7 +62,8 @@ def image_augmentation(image, mask):
 
 
 
-def get_image_mask(queue, augmentation=True,
+def get_image_mask(queue, data_root = tf.Variable("", trainable=False),
+                   augmentation=True,
                    img_decoder = tf.image.decode_png,
                    height=None, width=None):
     """Returns `image` and `mask`
@@ -86,6 +87,9 @@ def get_image_mask(queue, augmentation=True,
     image_path, mask_path = tf.decode_csv(csv_content, 
                                           record_defaults=[[""], [""]]
                                           )
+
+    image_path = tf.add(data_root, image_path)
+    mask_path = tf.add(data_root, mask_path)
 
     image_file = tf.read_file(image_path)
     mask_file = tf.read_file(mask_path)
@@ -289,6 +293,11 @@ def read_flags():
     import argparse
 
     parser = argparse.ArgumentParser()
+    parser.add_argument("--data-root",
+                        default="",
+                        type=str,
+                        help="prefix for filenames in csv files")
+
     parser.add_argument("--train",
                         default="./train.csv",
                         type=str,
@@ -373,15 +382,17 @@ def main(flags):
 
     #IOU_op = IOU_(pred, y)
     IOU_op = sparse_iou(pred, y)
-    IOU_op = tf.Print(IOU_op, [IOU_op])
+    IOU_op = tf.Print(IOU_op, [IOU_op, mode])
     tf.summary.scalar("IOU", IOU_op)
 
+    data_root_ = tf.Variable(flags.data_root, trainable=False)
     train_csv = tf.train.string_input_producer([flags.train])
     test_csv = tf.train.string_input_producer([flags.test])
-    train_image, train_mask = get_image_mask(train_csv,
+    train_image, train_mask = get_image_mask(train_csv, data_root = data_root_,
 											height=flags.height, width=flags.w)
-    test_image, test_mask = get_image_mask(test_csv, augmentation=False,
-											height=flags.height, width=flags.w)
+    test_image, test_mask = get_image_mask(test_csv, data_root = data_root_,
+                                           augmentation=False,
+									       height=flags.height, width=flags.w)
 
     X_batch_op, y_batch_op = tf.train.shuffle_batch([train_image, train_mask],
                                                     batch_size=flags.batch_size,
