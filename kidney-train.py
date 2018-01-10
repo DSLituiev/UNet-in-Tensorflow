@@ -30,6 +30,10 @@ import os
 import pandas as pd
 import tensorflow as tf
 
+try:
+    FileNotFoundError
+except NameError:
+    FileNotFoundError = IOError
 
 def image_augmentation(image, mask):
     """Returns (maybe) augmented images
