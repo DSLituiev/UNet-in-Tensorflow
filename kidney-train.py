@@ -30,6 +30,11 @@ import os
 import pandas as pd
 import tensorflow as tf
 
+try:
+    FileNotFoundError
+except NameError:
+    FileNotFoundError = IOError
+
 
 def image_augmentation(image, mask):
     """Returns (maybe) augmented images
@@ -314,7 +319,7 @@ def read_flags():
                         help="Number of epochs (default: 8)")
 
     parser.add_argument("--batch-size",
-                        default=4,
+                        default=16,
                         type=int,
                         help="Batch size (default: 4)")
 
