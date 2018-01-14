@@ -264,7 +264,8 @@ def IOU_(y_pred, y_true):
     return tf.reduce_mean(intersection / denominator)
 
 
-def make_train_op(y_pred, y_true):
+def make_train_op(y_pred, y_true,
+        learning_rate=0.001, beta1=0.9, beta2=0.999, epsilon=1e-08):
     """Returns a training operation
 
     Loss function = - IOU(y_pred, y_true)
@@ -287,7 +288,8 @@ def make_train_op(y_pred, y_true):
 
     global_step = tf.train.get_or_create_global_step()
 
-    optim = tf.train.AdamOptimizer()
+    optim = tf.train.AdamOptimizer(learning_rate=learning_rate, beta1=beta1,
+                                   beta2=beta2, epsilon=epsilon)
     return optim.minimize(loss, global_step=global_step)
 
 
@@ -317,8 +319,13 @@ def read_flags():
                         type=int,
                         help="Number of epochs (default: 8)")
 
+    parser.add_argument("--learning-rate",
+                        default=0.001,
+                        type=float,
+                        help="learning rate")
+
     parser.add_argument("--batch-size",
-                        default=4,
+                        default=16,
                         type=int,
                         help="Batch size (default: 4)")
 
@@ -382,7 +389,7 @@ def main(flags):
     update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
 
     with tf.control_dependencies(update_ops):
-        train_op = make_train_op(pred, y)
+        train_op = make_train_op(pred, y, learning_rate=flags.learning_rate)
 
     #IOU_op = IOU_(pred, y)
     IOU_op = sparse_iou(pred, y)
@@ -422,11 +429,14 @@ def main(flags):
         if os.path.exists(flags.ckdir) and tf.train.checkpoint_exists(flags.ckdir):
             latest_check_point = tf.train.latest_checkpoint(flags.ckdir)
             if latest_check_point is not None:
+                print("restoring from\t%s" % latest_check_point)
                 saver.restore(sess, latest_check_point)
         else:
             try:
                 os.rmdir(flags.ckdir)
             except FileNotFoundError:
+                pass
+            except OSError:
                 pass
             os.mkdir(flags.ckdir)
 
