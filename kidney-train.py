@@ -327,12 +327,12 @@ def read_flags():
     parser.add_argument("--batch-size",
                         default=16,
                         type=int,
-                        help="Batch size (default: 4)")
+                        help="Batch size")
 
-    parser.add_argument("-c",
-                        default=4,
+    parser.add_argument("-channels",
+                        default=5,
                         type=int,
-                        help="number of channels")
+                        help="number of class channels")
 
     parser.add_argument("--height",
                         default=256,
@@ -370,14 +370,14 @@ def main(flags):
                        name="y")
     mode = tf.placeholder(tf.bool, name="mode")
 
-    if flags.c>1:
+    if flags.channels>1:
         activation = tf.nn.softmax
     else:
         activation = tf.nn.sigmoid
 
     pred = make_unet(X, mode,
                      activation=activation,
-                     classes=flags.c)
+                     classes=flags.channels)
 
     tf.add_to_collection("inputs", X)
     tf.add_to_collection("inputs", mode)
